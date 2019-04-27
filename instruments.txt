@@ -1,0 +1,16 @@
+Bass Drum,35
+Closed Hi-Hat,42
+Open Hi-Hat,46
+Acoustic Snare,38
+Crash Cymbal,49
+Hand Clap,39
+High Tom,50
+Hi Bongo,60
+Maracas,70
+Whistle,72
+Low Conga,64
+Cowbell,56
+Vibraslap,58
+Low-mid Tom,47
+High Agogo,67
+Open Hi Conga,63
