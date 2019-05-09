@@ -1,5 +1,6 @@
 package se116.halilyaman.GUI;
 
+import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -10,17 +11,23 @@ import java.util.ArrayList;
 
 public class MainWindow {
 
+    private Sequencer sequencer;
+    private Sequence sequence;
+    private Track track;
+
     private JFrame mainFrame;
     private JPanel mainContainer;
     private ArrayList<JCheckBox> userInputContainer;
     private String musicName;
     private JFrame welcomeWindow;
     private boolean isSaved = false;
+    private int[] instrumentKeys = new int[16];
 
     // constructor
     public MainWindow(String musicName, JFrame welcomeWindow) {
         this.musicName = musicName;
         this.welcomeWindow = welcomeWindow;
+        setUpMidi();
     }
 
     // build the fundamentals of a window
@@ -30,7 +37,9 @@ public class MainWindow {
 
         mainContainer = new JPanel();
         mainContainer.setLayout(new BorderLayout());
-        mainContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainContainer.setBorder(
+           BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
         mainContainer.setBackground(new Color(50, 70, 105));
 
         // create buttons
@@ -63,16 +72,16 @@ public class MainWindow {
         JPanel musicNameContainer = new JPanel();
         JLabel musicNameLabel = new JLabel("<html><h2>"+ musicName +"</h2></html>");
         musicNameContainer.add(musicNameLabel);
-        musicNameContainer.setBackground(Color.yellow);
-        musicNameViewer.add(BorderLayout.WEST, backButton);
+        musicNameContainer.setBackground(new Color(10, 100, 200));
+        musicNameViewer.add(BorderLayout.EAST, backButton);
         musicNameViewer.add(BorderLayout.CENTER, musicNameContainer);
-        musicNameViewer.setBackground(Color.yellow);
+        musicNameViewer.setBackground(new Color(200,0,0));
         mainContainer.add(BorderLayout.NORTH, musicNameViewer);
 
         // set buttons to the right side of window
         JPanel rightViewer = new JPanel();
         rightViewer.setLayout(new GridBagLayout());
-        rightViewer.setBackground(new Color(51, 0, 102));
+        rightViewer.setBackground(new Color(10, 100, 200));
 
         Box rightButtonsContainer = new Box(BoxLayout.Y_AXIS);
         rightButtonsContainer.add(saveButton);
@@ -84,7 +93,7 @@ public class MainWindow {
         // set buttons to the very bottom of the window
         JPanel bottomViewer = new JPanel();
         bottomViewer.setLayout(new GridBagLayout());
-        bottomViewer.setBackground(new Color(100, 0, 0));
+        bottomViewer.setBackground(new Color(10, 100, 200));
 
         Box bottomButtonsContainer = new Box(BoxLayout.X_AXIS);
         bottomButtonsContainer.add(startButton);
@@ -94,11 +103,11 @@ public class MainWindow {
         bottomViewer.add(bottomButtonsContainer);
         mainContainer.add(bottomViewer, BorderLayout.SOUTH);
 
-        // set sound names to the left side of the window
-        mainContainer.add(setSoundNames(), BorderLayout.WEST);
+        // set instrument names
+        mainContainer.add(setInstrumentNames(), BorderLayout.WEST);
 
-        // set CheckBoxes on the middle of the window
-        mainContainer.add(BorderLayout.CENTER, setInputArea());
+        // set input areas
+        mainContainer.add(setInputArea(), BorderLayout.CENTER);
 
         // TODO: adjust max and min dimensions in order to frame's content
         Dimension maxDimension = new Dimension(1000, 650);
@@ -113,13 +122,12 @@ public class MainWindow {
         mainFrame.setVisible(true);
     }
 
-    private JPanel setSoundNames() {
+    private JPanel setInstrumentNames() {
 
-        JPanel soundNameViewer = new JPanel(new GridBagLayout());
-        soundNameViewer.setBackground(new Color(51, 153, 255));
-        soundNameViewer.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+        JPanel container = new JPanel(new GridBagLayout());
+        JPanel nameViewer = new JPanel();
+        Box nameBox = new Box(BoxLayout.Y_AXIS);
 
-        Box soundNameContainer = new Box(BoxLayout.Y_AXIS);
         ArrayList<String> soundNameList = new ArrayList<>();
 
         try {
@@ -130,36 +138,45 @@ public class MainWindow {
             FileInputStream fStream = new FileInputStream(instrumentsFilePath);
             BufferedReader bReader = new BufferedReader(new InputStreamReader(fStream));
 
+            int counter = 0;
             while((line = bReader.readLine()) != null) {
                 String soundName = "";
                 for(short i = 0; i < line.length(); i++) {
                     if(line.charAt(i) == ',') {
+                        String keyString = "";
+                        for(int j = i+1; j < line.length(); j++) {
+                            keyString += line.charAt(j);
+                        }
+                        instrumentKeys[counter] = Integer.parseInt(keyString);
                         break;
                     }
                     soundName += line.charAt(i);
                 }
                 soundNameList.add(soundName);
+                counter++;
             }
 
         } catch(IOException ex) {
             ex.printStackTrace();
         }
 
-        for(String i : soundNameList) {
-            JLabel label = new JLabel(i);
-            label.setFont(new Font("Serif", Font.BOLD, 20));
-            label.setForeground(new Color(0,51,51));
-            label.setBorder(new EmptyBorder(0,10,6,10));
-            soundNameContainer.add(label);
+        for(String soundName : soundNameList) {
+            JLabel nameLabel = new JLabel();
+            nameLabel.setText(soundName);
+            nameLabel.setFont(new Font("Serif", Font.BOLD, 20));
+            nameLabel.setForeground(new Color(0,51,51));
+            nameLabel.setBorder(new EmptyBorder(0, 5,11,5));
+            nameBox.add(nameLabel);
         }
-        soundNameViewer.add(soundNameContainer);
+        nameViewer.add(nameBox);
+        container.add(nameViewer);
 
-        return soundNameViewer;
+        return container;
     }
 
     private JPanel setInputArea() {
 
-        JPanel inputAreaViewer = new JPanel();
+        JPanel inputAreaViewer = new JPanel(new BorderLayout());
         JPanel inputArea = new JPanel(new GridLayout(16, 16));
 
         userInputContainer = new ArrayList<>();
@@ -175,37 +192,114 @@ public class MainWindow {
         inputArea.setBackground(new Color(88,100,100));
         inputArea.setBorder(BorderFactory.createLineBorder(Color.black, 2));
         inputAreaViewer.add(inputArea);
-        inputAreaViewer.setBorder(new EmptyBorder(47, 0, 0, 0));
         inputAreaViewer.setBackground(new Color(204,102,0));
 
         return inputAreaViewer;
     }
 
+
+    // ************* sound system ***************
+
+    public void setUpMidi() {
+        try {
+            sequencer = MidiSystem.getSequencer();
+            sequencer.open();
+            sequence = new Sequence(Sequence.PPQ, 4);
+            track = sequence.createTrack();
+            sequencer.setTempoInBPM(120);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void buildTrackAndStart() {
+
+        int[] trackList = null;
+
+        // get rid of old track
+        sequence.deleteTrack(track);
+        track = sequence.createTrack();
+
+        for(int i = 0; i < 16; i++) {
+            trackList = new int[16];
+            int key = instrumentKeys[i];
+
+            for(int j = 0; j < 16; j++) {
+                JCheckBox jCheckBox = userInputContainer.get(j + i*16);
+                if(jCheckBox.isSelected()) {
+                    trackList[j] = key;
+                } else {
+                    trackList[j] = 0;
+                }
+            }
+            makeTracks(trackList);
+            track.add(makeEvent(176, 1, 127, 0, 16));
+        }
+
+        track.add(makeEvent(192, 9, 1, 0, 15));
+
+        try {
+            sequencer.setSequence(sequence);
+            sequencer.setLoopCount(sequencer.LOOP_CONTINUOUSLY);
+            sequencer.start();
+            sequencer.setTempoInBPM(120);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void makeTracks(int[] list) {
+        for(int i = 0; i < 16; i++) {
+            int key = list[i];
+            if(key != 0) {
+                track.add(makeEvent(144, 9, key, 100, i));
+                track.add(makeEvent(128, 9, key, 100, i+1));
+            }
+        }
+    }
+
+    private MidiEvent makeEvent(int command, int channel, int data1, int data2, int tick) {
+        MidiEvent event = null;
+        try {
+            ShortMessage shortMessage = new ShortMessage();
+            shortMessage.setMessage(command,channel, data1, data2);
+            event = new MidiEvent(shortMessage, tick);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return event;
+    }
+
+    // ******** inner classes for adding interactivity to buttons ********
+
     private class StartButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            buildTrackAndStart();
         }
     }
 
     private class StopButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            sequencer.stop();
         }
     }
 
     private class TempoUpButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            float tempoFactor = sequencer.getTempoFactor();
+            sequencer.setTempoFactor((float)(tempoFactor * 1.03));
         }
     }
 
     private class TempoDownButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            float tempoFactor = sequencer.getTempoFactor();
+            sequencer.setTempoFactor((float)(tempoFactor * .97));
         }
     }
 
@@ -226,19 +320,31 @@ public class MainWindow {
     private class ClearButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            for(JCheckBox checkBox : userInputContainer) {
+                checkBox.setSelected(false);
+            }
         }
     }
 
     private class BackButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            sequencer.stop();
             if(isSaved) {
                 welcomeWindow.setVisible(true);
                 mainFrame.dispose();
                 mainFrame = null;
             } else {
-                int choose = JOptionPane.showOptionDialog(null, "You didn't save! Are you sure?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                int choose = JOptionPane.showOptionDialog(
+                   null,
+                   "You didn't save! Are you sure?",
+                   "Warning",
+                   JOptionPane.YES_NO_OPTION,
+                   JOptionPane.INFORMATION_MESSAGE,
+                   null,
+                   null,
+                   null
+                );
                 if(choose == JOptionPane.YES_OPTION) {
                     welcomeWindow.setVisible(true);
                     mainFrame.dispose();
