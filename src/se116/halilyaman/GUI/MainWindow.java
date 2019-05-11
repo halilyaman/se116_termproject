@@ -14,7 +14,6 @@ public class MainWindow {
     private Sequencer sequencer;
     private Sequence sequence;
     private Track track;
-
     private JFrame mainFrame;
     private JPanel mainContainer;
     private ArrayList<JCheckBox> userInputContainer;
@@ -22,6 +21,7 @@ public class MainWindow {
     private JFrame welcomeWindow;
     private boolean isSaved = false;
     private int[] instrumentKeys = new int[16];
+    private boolean[] checkBoxState;
 
     // constructor
     public MainWindow(String musicName, JFrame welcomeWindow) {
@@ -320,7 +320,7 @@ public class MainWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
             isSaved = true;
-            boolean[] checkBoxState = new boolean[256];
+            checkBoxState = new boolean[256];
             for(int i = 0; i < 256; i++) {
                 JCheckBox checkBox = (JCheckBox) userInputContainer.get(i);
                 if(checkBox.isSelected()) {
@@ -394,6 +394,23 @@ public class MainWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
             sequencer.stop();
+
+            boolean[] tempCheckBoxState = new boolean[256];
+            if(checkBoxState != null) {
+                for(int i = 0; i < 256; i++) {
+                    JCheckBox checkBox = (JCheckBox) userInputContainer.get(i);
+                    if(checkBox.isSelected()) {
+                        tempCheckBoxState[i] = true;
+                    }
+                }
+
+                for(int i = 0; i < 256; i++) {
+                    if(tempCheckBoxState[i] != checkBoxState[i]) {
+                        isSaved = false;
+                    }
+                }
+            }
+
             if(isSaved) {
                 welcomeWindow.setVisible(true);
                 mainFrame.dispose();

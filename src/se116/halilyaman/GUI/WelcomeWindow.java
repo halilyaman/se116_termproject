@@ -90,9 +90,10 @@ public class WelcomeWindow {
          int returnVal = fileChooser.showOpenDialog(welcomeFrame);
 
          if(returnVal == JFileChooser.APPROVE_OPTION) {
-            MainWindow mainWindow = new MainWindow(null, welcomeFrame);
-            mainWindow.buildWindow();
             File file = fileChooser.getSelectedFile();
+            int extensionStarterIndex = file.getName().length() - 4;
+            MainWindow mainWindow = new MainWindow(file.getName().substring(0, extensionStarterIndex), welcomeFrame);
+            mainWindow.buildWindow();
             try {
                FileInputStream fileIn = new FileInputStream(file);
                ObjectInputStream objectInputStream = new ObjectInputStream(fileIn);
