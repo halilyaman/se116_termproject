@@ -116,7 +116,7 @@ public class MainWindow {
         mainFrame.setMinimumSize(minDimension);
 
         mainFrame.add(mainContainer);
-        mainFrame.setSize(1000, 650);
+        mainFrame.setSize(1300, 780);
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setResizable(false);
         mainFrame.setVisible(true);
@@ -124,8 +124,8 @@ public class MainWindow {
 
     private JPanel setInstrumentNames() {
 
-        JPanel container = new JPanel(new GridBagLayout());
-        JPanel nameViewer = new JPanel();
+        JPanel nameViewer = new JPanel(new GridBagLayout());
+        nameViewer.setBackground(new Color(50, 200, 200));
         Box nameBox = new Box(BoxLayout.Y_AXIS);
 
         ArrayList<String> soundNameList = new ArrayList<>();
@@ -142,7 +142,7 @@ public class MainWindow {
             while((line = bReader.readLine()) != null) {
                 String soundName = "";
                 for(short i = 0; i < line.length(); i++) {
-                    if(line.charAt(i) == ',') {
+                    if(line.charAt(i) == '&') {
                         String keyString = "";
                         for(int j = i+1; j < line.length(); j++) {
                             keyString += line.charAt(j);
@@ -169,9 +169,8 @@ public class MainWindow {
             nameBox.add(nameLabel);
         }
         nameViewer.add(nameBox);
-        container.add(nameViewer);
 
-        return container;
+        return nameViewer;
     }
 
     private JPanel setInputArea() {

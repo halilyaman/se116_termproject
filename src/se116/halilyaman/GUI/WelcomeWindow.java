@@ -26,21 +26,26 @@ public class WelcomeWindow {
       headerViewer.setBackground(new Color(50, 70, 80));
       JLabel header = new JLabel("Music Maker");
       header.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 100));
+      header.setBackground(new Color(200, 100, 40));
+      header.setOpaque(true);
       headerViewer.add(header);
       mainContainer.add(BorderLayout.NORTH, headerViewer);
 
       // create buttons
       JButton newMusicButton = new JButton("<html><h1>New Music</h1></html>");
       newMusicButton.setForeground(new Color(0, 250, 250));
+      newMusicButton.setBackground(new Color(50, 70, 105));
       newMusicButton.addActionListener(new NewMusicButtonListener());
       newMusicButton.setBorder(new EmptyBorder(15,0,15,0));
       JButton loadButton = new JButton("<html><h1>Load</h1></html>");
       loadButton.setForeground(new Color(0, 250, 250));
       loadButton.setBorder(new EmptyBorder(15,0,15,0));
+      loadButton.setBackground(new Color(50, 70, 105));
       loadButton.addActionListener(new LoadButtonListener());
       JButton exitButton = new JButton("<html><h1>Exit</h1></html>");
       exitButton.setForeground(new Color(0, 250, 250));
       exitButton.setBorder(new EmptyBorder(15,0,15,0));
+      exitButton.setBackground(new Color(50, 70, 105));
       exitButton.addActionListener(new ExitButtonListener());
 
       // set buttons
@@ -61,7 +66,7 @@ public class WelcomeWindow {
    private class NewMusicButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         musicName = JOptionPane.showInputDialog(welcomeFrame, "Name of Music", null, JOptionPane.QUESTION_MESSAGE);
+         musicName = JOptionPane.showInputDialog(welcomeFrame, "Music Name", null, JOptionPane.QUESTION_MESSAGE);
          if(musicName != null) {
             if(musicName.length() > 0) {
                MainWindow mainWindow = new MainWindow(musicName, welcomeFrame);
