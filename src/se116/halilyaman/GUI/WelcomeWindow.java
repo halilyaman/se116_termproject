@@ -5,6 +5,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 
 public class WelcomeWindow {
 
@@ -80,6 +83,36 @@ public class WelcomeWindow {
    private class LoadButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
+
+         boolean[] checkBoxState = null;
+
+         JFileChooser fileChooser = new JFileChooser();
+         int returnVal = fileChooser.showOpenDialog(welcomeFrame);
+
+         if(returnVal == JFileChooser.APPROVE_OPTION) {
+            MainWindow mainWindow = new MainWindow(null, welcomeFrame);
+            mainWindow.buildWindow();
+            File file = fileChooser.getSelectedFile();
+            try {
+               FileInputStream fileIn = new FileInputStream(file);
+               ObjectInputStream objectInputStream = new ObjectInputStream(fileIn);
+               checkBoxState = (boolean[]) objectInputStream.readObject();
+            } catch(Exception ex) {
+               ex.printStackTrace();
+            }
+            for(int i = 0; i < 256; i++) {
+               JCheckBox checkBox = mainWindow.getUserInputContainer().get(i);
+               if(checkBoxState != null) {
+                  if(checkBoxState[i]) {
+                     checkBox.setSelected(true);
+                  } else {
+                     checkBox.setSelected(false);
+                  }
+               }
+            }
+            welcomeFrame.dispose();
+         }
+
 
       }
    }

@@ -30,6 +30,14 @@ public class MainWindow {
         setUpMidi();
     }
 
+    public ArrayList<JCheckBox> getUserInputContainer() {
+        return this.userInputContainer;
+    }
+
+    public Sequencer getSequencer() {
+        return sequencer;
+    }
+
     // build the fundamentals of a window
     public void buildWindow() {
         mainFrame = new JFrame("Music Maker");
@@ -64,15 +72,20 @@ public class MainWindow {
         JButton clearButton = new JButton("<html><h2>Clear</h2></html>");
         clearButton.addActionListener(new ClearButtonListener());
 
-        JButton backButton = new JButton("<html><h2>Back</h2></html>");
+        JButton backButton = new JButton("<html><h1 style=\"color:#FFFFFF\">Back</h1></html>");
+        backButton.setBackground(new Color(0,0,0));
         backButton.addActionListener(new BackButtonListener());
 
         // set the name of music to the top of the window
         JPanel musicNameViewer = new JPanel(new BorderLayout());
         JPanel musicNameContainer = new JPanel();
-        JLabel musicNameLabel = new JLabel("<html><h2>"+ musicName +"</h2></html>");
-        musicNameContainer.add(musicNameLabel);
-        musicNameContainer.setBackground(new Color(10, 100, 200));
+        JLabel musicNameLabel = new JLabel();
+        if(musicName != null) {
+            musicNameLabel.setText("<html><h2>"+ musicName +"</h2></html>");
+            musicNameLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+            musicNameContainer.add(musicNameLabel);
+        }
+        musicNameContainer.setBackground(new Color(151, 178, 169));
         musicNameViewer.add(BorderLayout.EAST, backButton);
         musicNameViewer.add(BorderLayout.CENTER, musicNameContainer);
         musicNameViewer.setBackground(new Color(200,0,0));
@@ -168,6 +181,7 @@ public class MainWindow {
             nameLabel.setBorder(new EmptyBorder(0, 5,11,5));
             nameBox.add(nameLabel);
         }
+        nameViewer.setBorder(BorderFactory.createLineBorder(Color.black, 2));
         nameViewer.add(nameBox);
 
         return nameViewer;
@@ -184,14 +198,14 @@ public class MainWindow {
             JCheckBox checkBox = new JCheckBox();
             checkBox.setSelected(false);
             checkBox.setBorder(new EmptyBorder(0,10,8,10));
+            checkBox.setBackground(new Color(124, 137, 132));
             userInputContainer.add(checkBox);
-            inputArea.add(userInputContainer.get(i));
+            inputArea.add(new JPanel(new GridBagLayout()).add(userInputContainer.get(i)));
         }
 
-        inputArea.setBackground(new Color(88,100,100));
         inputArea.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+        inputArea.setBackground(new Color(124, 137, 132));
         inputAreaViewer.add(inputArea);
-        inputAreaViewer.setBackground(new Color(204,102,0));
 
         return inputAreaViewer;
     }
@@ -306,6 +320,30 @@ public class MainWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
             isSaved = true;
+            boolean[] checkBoxState = new boolean[256];
+            for(int i = 0; i < 256; i++) {
+                JCheckBox checkBox = (JCheckBox) userInputContainer.get(i);
+                if(checkBox.isSelected()) {
+                    checkBoxState[i] = true;
+                }
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = fileChooser.showSaveDialog(mainFrame);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    FileOutputStream fileOut = new FileOutputStream(file.getPath() + "\\" + musicName + ".ser");
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOut);
+                    objectOutputStream.writeObject(checkBoxState);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+
         }
     }
 
@@ -313,6 +351,32 @@ public class MainWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
 
+            boolean[] checkBoxState = null;
+
+            JFileChooser fileChooser = new JFileChooser();
+            int returnVal = fileChooser.showOpenDialog(mainFrame);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    FileInputStream fileIn = new FileInputStream(file);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(fileIn);
+                    checkBoxState = (boolean[]) objectInputStream.readObject();
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+                for(int i = 0; i < 256; i++) {
+                    JCheckBox checkBox = (JCheckBox) userInputContainer.get(i);
+                    if(checkBoxState != null) {
+                        if(checkBoxState[i]) {
+                            checkBox.setSelected(true);
+                        } else {
+                            checkBox.setSelected(false);
+                        }
+                    }
+                }
+                sequencer.stop();
+            }
         }
     }
 
@@ -322,6 +386,7 @@ public class MainWindow {
             for(JCheckBox checkBox : userInputContainer) {
                 checkBox.setSelected(false);
             }
+            sequencer.stop();
         }
     }
 
