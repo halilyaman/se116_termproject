@@ -113,8 +113,6 @@ public class WelcomeWindow {
             }
             welcomeFrame.dispose();
          }
-
-
       }
    }
 

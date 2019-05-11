@@ -51,25 +51,32 @@ public class MainWindow {
         mainContainer.setBackground(new Color(50, 70, 105));
 
         // create buttons
-        JButton startButton = new JButton("<html><h4>Play</h4></html>");
+        JButton startButton = new JButton("<html><h2 style=\"color:'white';\">Play</h2></html>");
+        startButton.setBackground(new Color(36,62,103));
         startButton.addActionListener(new StartButtonListener());
 
-        JButton stopButton = new JButton("<html><h4>Pause</h4></html>");
+        JButton stopButton = new JButton("<html><h2 style=\"color:'#FFFFFF';\">Pause</h2></html>");
+        stopButton.setBackground(new Color(36,62,103));
         stopButton.addActionListener(new StopButtonListener());
 
-        JButton tempoUpButton = new JButton("<html><h4>Tempo Up</h4></html>");
+        JButton tempoUpButton = new JButton("<html><h2 style=\"color:'white';\">Tempo Up</h2></html>");
+        tempoUpButton.setBackground(new Color(36,62,103));
         tempoUpButton.addActionListener(new TempoUpButtonListener());
 
-        JButton tempoDownButton = new JButton("<html><h4>Tempo Down</h4></html>");
+        JButton tempoDownButton = new JButton("<html><h2 style=\"color:'#FFFFFF';\">Tempo Down</h2></html>");
+        tempoDownButton.setBackground(new Color(36,62,103));
         tempoDownButton.addActionListener(new TempoDownButtonListener());
 
-        JButton saveButton = new JButton("<html><h2>Save</h2></html>");
+        JButton saveButton = new JButton("<html><h2 style=\"color:'white';\">Save</h2></html>");
+        saveButton.setBackground(new Color(36,62,103));
         saveButton.addActionListener(new SaveButtonListener());
 
-        JButton loadButton = new JButton("<html><h2>Load</h2></html>");
+        JButton loadButton = new JButton("<html><h2 style=\"color:'white';\">Load</h2></html>");
+        loadButton.setBackground(new Color(36,62,103));
         loadButton.addActionListener(new LoadButtonListener());
 
-        JButton clearButton = new JButton("<html><h2>Clear</h2></html>");
+        JButton clearButton = new JButton("<html><h2 style=\"color:'#FFFFFF';\">Clear</h2></html>");
+        clearButton.setBackground(new Color(36,62,103));
         clearButton.addActionListener(new ClearButtonListener());
 
         JButton backButton = new JButton("<html><h1 style=\"color:#FFFFFF\">Back</h1></html>");
@@ -129,7 +136,7 @@ public class MainWindow {
         mainFrame.setMinimumSize(minDimension);
 
         mainFrame.add(mainContainer);
-        mainFrame.setSize(1300, 780);
+        mainFrame.setSize(1300, 801);
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setResizable(false);
         mainFrame.setVisible(true);
@@ -197,7 +204,7 @@ public class MainWindow {
         for(int i = 0; i < 256; i++) {
             JCheckBox checkBox = new JCheckBox();
             checkBox.setSelected(false);
-            checkBox.setBorder(new EmptyBorder(0,10,8,10));
+            checkBox.setBorder(new EmptyBorder(0,10,10,10));
             checkBox.setBackground(new Color(124, 137, 132));
             userInputContainer.add(checkBox);
             inputArea.add(new JPanel(new GridBagLayout()).add(userInputContainer.get(i)));
@@ -319,7 +326,7 @@ public class MainWindow {
     private class SaveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            isSaved = true;
+
             checkBoxState = new boolean[256];
             for(int i = 0; i < 256; i++) {
                 JCheckBox checkBox = (JCheckBox) userInputContainer.get(i);
@@ -333,6 +340,7 @@ public class MainWindow {
             int returnVal = fileChooser.showSaveDialog(mainFrame);
 
             if(returnVal == JFileChooser.APPROVE_OPTION) {
+                isSaved = true;
                 File file = fileChooser.getSelectedFile();
                 try {
                     FileOutputStream fileOut = new FileOutputStream(file.getPath() + "\\" + musicName + ".ser");
