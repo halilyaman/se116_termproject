@@ -34,10 +34,6 @@ public class MainWindow {
         return this.userInputContainer;
     }
 
-    public Sequencer getSequencer() {
-        return sequencer;
-    }
-
     // build the fundamentals of a window
     public void buildWindow() {
         mainFrame = new JFrame("Music Maker");
